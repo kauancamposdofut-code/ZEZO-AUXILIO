@@ -36,10 +36,47 @@ jobs:
           mkdir -p project
           unzip -q ZEZO_SERVERS_AUXILIO_PROJETO_NOVO.zip -d project
 
-      - name: Corrigir compatibilidade Java e Kotlin
+      - name: Corrigir Java e Kotlin
         run: |
-          sed -i "s/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g" project/app/build.gradle
-          sed -i "s/jvmTarget = '1.8'/jvmTarget = '17'/g" project/app/build.gradle
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("project/app/build.gradle")
+          s = p.read_text()
+
+          s = s.replace("VERSION_1_8", "VERSION_17")
+          s = s.replace("VERSION_1_8", "VERSION_17")
+          s = s.replace("jvmTarget = '1.8'", "jvmTarget = '17'")
+
+          if "compileOptions" not in s:
+              s = s.replace(
+                  "android {",
+                  """android {
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+          """,
+                  1
+              )
+
+          if "kotlinOptions" not in s:
+              s = s.replace(
+                  "android {",
+                  """android {
+              kotlinOptions {
+                  jvmTarget = '17'
+              }
+          """,
+                  1
+              )
+
+          p.write_text(s)
+          print("Java e Kotlin configurados para 17.")
+          PY
+
+      - name: Verificar configuração
+        run: cat project/app/build.gradle
 
       - name: Compilar APK
         run: gradle --no-daemon -p project assembleDebug
