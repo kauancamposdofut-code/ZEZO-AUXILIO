@@ -15,18 +15,18 @@ jobs:
       - name: Baixar projeto
         uses: actions/checkout@v4
 
-      - name: Preparar Java
+      - name: Configurar Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Preparar Android SDK
+      - name: Configurar Android SDK
         uses: android-actions/setup-android@v4
         with:
           packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
-      - name: Preparar Gradle
+      - name: Configurar Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
@@ -35,6 +35,11 @@ jobs:
         run: |
           mkdir -p project
           unzip -q ZEZO_SERVERS_AUXILIO_PROJETO_NOVO.zip -d project
+
+      - name: Corrigir compatibilidade Java e Kotlin
+        run: |
+          sed -i "s/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g" project/app/build.gradle
+          sed -i "s/jvmTarget = '1.8'/jvmTarget = '17'/g" project/app/build.gradle
 
       - name: Compilar APK
         run: gradle --no-daemon -p project assembleDebug
