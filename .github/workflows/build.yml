@@ -46,6 +46,7 @@ jobs:
 
           s = s.replace("VERSION_1_8", "VERSION_17")
           s = s.replace("VERSION_1_8", "VERSION_17")
+          s = s.replace("targetSdk 28", "targetSdk 35")
           s = s.replace("jvmTarget = '1.8'", "jvmTarget = '17'")
 
           if "compileOptions" not in s:
